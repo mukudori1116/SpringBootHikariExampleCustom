@@ -1,0 +1,67 @@
+server:
+  port: 8081
+
+spring:
+  datasource:
+    ##----------------------##
+    ##   Connection info.   ##
+    ##----------------------##
+    url: jdbc:aws-wrapper:postgresql://${PGHOST}:${PGPORT:5432}/${PGDATABASE:postgres}
+    username: ${PGUSER:postgres}
+    password: ${PGPASSWORD}
+    driver-class-name: software.amazon.jdbc.Driver
+    ##----------------------##
+    ##   HikariCP configs   ##
+    ##----------------------##
+    hikari:
+      connection-timeout: 30000 # The maximum number of milliseconds that a client will wait for a connection from the pool. (Default: 30000)
+      idle-timeout: 600000 # The maximum amount of time that a connection is allowed to sit idle in the pool. (Default: 600000)
+      max-lifetime: 1800000 # The maximum lifetime of a connection in milliseconds. (Default: 1800000)
+      auto-commit: true # Controls the default auto-commit behavior of connections returned from the pool. (Default: true)
+      exception-override-class-name: software.amazon.jdbc.util.HikariCPSQLException
+      maximum-pool-size: 20 # The maximum size that the pool is allowed to reach, including both idle and in-use connections. (Default: 10)
+      minimum-idle: 3 # The minimum number of idle connections that should be maintained in the pool. (Default: 10)
+      # pool-name: HikariPool # The name of the connection pool. (Default: HikariPool)
+      # catalog: # The default catalog to be set on the connection.
+      # connection-init-sql: # A custom query to execute on a new connection when it is obtained from the pool.
+      # connection-test-query: # A query that will be executed at connection creation time to validate that the connection is usable.
+      # escape-character: # The escape character to use if none is specified on the connection.
+      # health-check-properties: # Properties passed to the HealthCheckRegistry, as key-value pairs.
+      # health-check-registry: # The HealthCheckRegistry implementation to use.
+      # initialization-fail-timeout: 1 # How long in seconds to wait for the pool to be initialized. (Default: 1)
+      # isolate-internal-queries: # Whether to isolate internal pool queries, such as the connection alive check, in their own transaction.
+      # jdbc-interceptors: # A semicolon-separated list of JDBC interceptor class names.
+      # leak-detection-threshold: 0 # The time in milliseconds to track a connection when it is borrowed from the pool, to help detect leaked connections. (Default: 0)
+      # long-timeout: # The timeout value in milliseconds to use for queries that are not part of the normal query execution. Used for connection initialization queries, health checks, and other internal queries.
+      # max-lifetime: # The maximum lifetime of a connection in milliseconds. A connection will be retired from the pool after this amount of time.
+      # metric-registry: # The MetricRegistry implementation to use.
+      # metrics-tracker-factory: # The MetricsTrackerFactory implementation to use.
+      # partition-count: # The number of partitions to create in the pool. Each partition behaves as an independent sub-pool.
+      # read-only: # Whether connections obtained from the pool will be read-only.
+      # register-mbeans: false # Whether JMX management beans should be registered or not. (Default: false)
+      # scheduled-executor-service: # The ScheduledExecutorService implementation to use.
+      # validation-timeout: 5000 # The timeout in milliseconds to use when validating a connection before returning it from the pool. (Default: 5000)
+      # allow-pool-suspension: # Whether to allow pool suspension through the HikariCP API.
+    ##---------------------------------------##
+    ##   aws-advanced-jdbc-wrapper configs   ##
+    ##---------------------------------------##
+      data-source-properties: # Any additional JDBC driver or data source properties.
+        wrapperPlugins: failover,efm2
+        wrapperDialect: aurora-pg
+        wrapperProfile: D0 # Note: Not apply for HikariCP configuration's (ex. maxLifetime).
+        failoverMode: strict-writer # default depends on connection url. For Aurora read-only cluster endpoint, it's set to reader-or-writer. Otherwise, it's strict-writer.
+        # clusterInstanceHostPattern:  # If the provided connection string is not an IP address or custom domain, the JDBC Driver will automatically acquire the cluster instance host pattern from the customer-provided connection string.
+        # enableClusterAwareFailover: true
+        # failoverClusterTopologyRefreshRateMs: 2000
+        # failoverReaderConnectTimeoutMs: 30000
+        # failoverTimeoutMs: 300000
+        # failoverWriterReconnectIntervalMs: 2000
+
+logging:  
+  level:  
+    root: INFO
+    org.postgresql: INFO
+    com.zaxxer.hikari: DEBUG
+    software.amazon.jdbc: TRACE
+  file:
+    name: logs/application.log

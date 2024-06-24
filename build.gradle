@@ -1,0 +1,37 @@
+plugins {
+    id 'org.springframework.boot' version '3.3.0'
+    id 'io.spring.dependency-management' version '1.0.14.RELEASE'
+    id 'java'
+    id 'application'
+}
+
+application {
+    mainClass = 'software.amazon.SpringBootHikariExample.SpringBootHikariExampleApplication'
+}
+
+repositories {
+    // この記述があることで、Mavenと同じセントラルリポジトリが利用できる
+    mavenCentral()
+}
+
+dependencies {
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-jdbc', version: '3.3.0'
+    implementation group: 'com.lmaye', name: 'spring-boot-starter-data-web', version: '1.0.14-RELEASE'
+    implementation group: 'org.postgresql', name: 'postgresql', version: '42.7.3'
+    implementation group: 'software.amazon.jdbc', name: 'aws-advanced-jdbc-wrapper', version: '2.3.7'
+    implementation group: 'org.projectlombok', name: 'lombok', version: '1.18.32'
+}
+
+jar {
+    // jarタスクを設定
+    manifest {
+        attributes 'Main-Class': 'software.amazon.SpringBootHikariExample.SpringBootHikariExampleApplication'
+    }
+
+    // 依存ライブラリを含める設定
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
