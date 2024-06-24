@@ -9,11 +9,12 @@ spring:
     url: jdbc:aws-wrapper:postgresql://${PGHOST}:${PGPORT:5432}/${PGDATABASE:postgres}
     username: ${PGUSER:postgres}
     password: ${PGPASSWORD}
-    driver-class-name: software.amazon.jdbc.Driver
+      #driver-class-name: software.amazon.jdbc.Driver
     ##----------------------##
     ##   HikariCP configs   ##
     ##----------------------##
     hikari:
+      data-source-class-name: software.amazon.jdbc.ds.AwsWrapperDataSource
       connection-timeout: 30000 # The maximum number of milliseconds that a client will wait for a connection from the pool. (Default: 30000)
       idle-timeout: 600000 # The maximum amount of time that a connection is allowed to sit idle in the pool. (Default: 600000)
       max-lifetime: 1800000 # The maximum lifetime of a connection in milliseconds. (Default: 1800000)
@@ -60,7 +61,7 @@ spring:
 logging:  
   level:  
     root: INFO
-    org.postgresql: INFO
+    org.postgresql: TRACE
     com.zaxxer.hikari: DEBUG
     software.amazon.jdbc: INFO
   file:

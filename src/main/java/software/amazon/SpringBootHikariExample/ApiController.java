@@ -40,7 +40,7 @@ public class ApiController {
     Logger logger = LoggerFactory.getLogger(ApiController.class);
 
     @Autowired
-    private HikariDataSource dataSource;
+    private AwsWrapperDataSourceConfiguration awsWrapperDataSourceConfiguration;
 
     @PostConstruct
     private void additionalDataSourceConfigs() {
@@ -51,7 +51,7 @@ public class ApiController {
 
     @GetMapping(value = "/select1")
     public Integer getOne() {
-        DataSource ds = dataSource;
+        DataSource ds = awsWrapperDataSourceConfiguration.AwsWrapperDataSource();
         try {
             Connection conn = ds.getConnection();
                 try {
@@ -77,7 +77,7 @@ public class ApiController {
         boolean isFailover = false;
         Integer loopAfterFailover = 0;
         
-        DataSource ds = dataSource;
+        DataSource ds = awsWrapperDataSourceConfiguration.AwsWrapperDataSource();
         try {
             Connection conn = ds.getConnection();
             while (true) {
