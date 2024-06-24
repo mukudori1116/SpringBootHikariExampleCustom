@@ -18,7 +18,7 @@ spring:
       idle-timeout: 600000 # The maximum amount of time that a connection is allowed to sit idle in the pool. (Default: 600000)
       max-lifetime: 1800000 # The maximum lifetime of a connection in milliseconds. (Default: 1800000)
       auto-commit: true # Controls the default auto-commit behavior of connections returned from the pool. (Default: true)
-      exception-override-class-name: software.amazon.jdbc.util.HikariCPSQLException
+      exception-override-class-name: software.amazon.jdbc.util.HikariCPSQLException # https://github.com/aws/aws-advanced-jdbc-wrapper/blob/d4d7407ebfe924fefee2d0095d85409c35af93a2/docs/using-the-jdbc-driver/using-plugins/UsingTheFailoverPlugin.md#hikaricp
       maximum-pool-size: 20 # The maximum size that the pool is allowed to reach, including both idle and in-use connections. (Default: 10)
       minimum-idle: 3 # The minimum number of idle connections that should be maintained in the pool. (Default: 10)
       # pool-name: HikariPool # The name of the connection pool. (Default: HikariPool)
