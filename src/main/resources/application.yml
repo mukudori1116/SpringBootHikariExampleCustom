@@ -62,6 +62,6 @@ logging:
     root: INFO
     org.postgresql: INFO
     com.zaxxer.hikari: DEBUG
-    software.amazon.jdbc: TRACE
+    software.amazon.jdbc: INFO
   file:
     name: logs/application.log
