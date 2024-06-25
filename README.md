@@ -31,7 +31,7 @@ $ curl http://localhost:8081/test-failover
 
 ## Change settings
 
-Edit `src/resources/application.yml` file.
+You can change settings by editing properties file in `src/main/resources`. SpringBoot server configurations are included in `application.yml`, HikariCP configurations are in `hikari.properties`, and advanced JDBC wrapper configs are in `wrapper.properties`.
 
 ## Test fast failover recovery
 
@@ -57,3 +57,5 @@ logging:
   file:
     name: logs/application.log
 ```
+
+3. Failover recovery get faster if Setting `FailoverMode` changes to `reader-or-writer`.
