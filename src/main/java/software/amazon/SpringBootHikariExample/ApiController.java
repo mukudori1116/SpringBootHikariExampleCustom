@@ -42,8 +42,7 @@ public class ApiController {
 
     @PostConstruct
     private void additionalDataSourceConfigs() {
-        // 自動作成された HikariDataSource に追加の処理を行いたい場合はここで
-        // HikariDataSource ds = dataSource;
+        // 自動作成された DataSource に追加の処理を行いたい場合はここで
         // ...
     }
 
