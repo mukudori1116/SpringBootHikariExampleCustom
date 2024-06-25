@@ -1,54 +1,69 @@
 package software.amazon.SpringBootHikariExample;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Properties;
-
-import java.sql.SQLException;
-
-import javax.sql.DataSource;
 
 import com.zaxxer.hikari.HikariDataSource;
 
-import org.springframework.beans.factory.ObjectProvider;
+import software.amazon.jdbc.ds.AwsWrapperDataSource;
+
+import com.zaxxer.hikari.HikariConfig;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
-import org.springframework.boot.autoconfigure.jdbc.JdbcConnectionDetails;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.jdbc.DataSourceBuilder;
-import org.springframework.boot.jdbc.DatabaseDriver;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.util.StringUtils;
-
-import software.amazon.jdbc.ds.AwsWrapperDataSource;
 
 
 @Configuration
 public class AwsWrapperDataSourceConfiguration {
+
+    Logger logger = LoggerFactory.getLogger(ApiController.class);
 
     @Autowired
     DataSourceProperties dataSourceProperties;
 
     @Bean
     HikariDataSource AwsWrapperDataSource() {
-        HikariDataSource ds = new HikariDataSource();
-        ds.setMaximumPoolSize(5);
-        ds.setIdleTimeout(60000);
-        ds.setUsername(dataSourceProperties.getUsername());
-        ds.setPassword(dataSourceProperties.getPassword());
 
-        ds.setDataSourceClassName(AwsWrapperDataSource.class.getName());
-        ds.addDataSourceProperty("jdbcProtocol", "jdbc:postgresql:");
-        ds.addDataSourceProperty("serverName", "iakuf-apg16.c309m6ylho0k.ap-northeast-1.rds.amazonaws.com");
-        ds.addDataSourceProperty("serverPort", "5432");
-        ds.addDataSourceProperty("database", "test");
+        final String USER = System.getenv("PGUSER") != null ? System.getenv("PGUSER") : "postgres";
+        final String PASSWORD = System.getenv("PGPASSWORD");
+        if (PASSWORD == null) {
+            logger.error("cannot get password. set the PGPASSWORD");
+        }
+        final String DATABASE = System.getenv("PGDATABASE") != null ? System.getenv("PGDATABASE") : "postgres";
+        final String PORT = System.getenv("PGPORT") != null ? System.getenv("PGPORT") : "5432";
+        final String HOST = System.getenv("PGHOST");
+        if (HOST == null) {
+            logger.error("cannot get host server name. set the PGHOST");
+        }
 
         Properties targetDataSourceProps = new Properties();
-        targetDataSourceProps.setProperty("wrapperProfile", "D0");
-        ds.addDataSourceProperty("targetDataSourceProperties", targetDataSourceProps);
+        try {
+            targetDataSourceProps.load(Files.newBufferedReader(Paths.get("src/main/resources/wrapper.properties"), StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            // ファイル読み込みに失敗
+            logger.error(String.format("Failed to read properties file. file:%s", "src/main/resources/wrapper.properties"), e);
+        }
+        
+        HikariConfig config = new HikariConfig("src/main/resources/hikari.properties");
+        
+        config.setDataSourceClassName(AwsWrapperDataSource.class.getName());
+        config.setUsername(USER);
+        config.setPassword(PASSWORD);
+        config.addDataSourceProperty("jdbcProtocol", "jdbc:postgresql:");
+        config.addDataSourceProperty("serverName", HOST);
+        config.addDataSourceProperty("serverPort", PORT);
+        config.addDataSourceProperty("database", DATABASE);
+        config.addDataSourceProperty("targetDataSourceClassName", "org.postgresql.ds.PGSimpleDataSource");
+        
+        config.addDataSourceProperty("targetDataSourceProperties", targetDataSourceProps);
 
-        return ds;
+        return new HikariDataSource(config);
     }
 }
